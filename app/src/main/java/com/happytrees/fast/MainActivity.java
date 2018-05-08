@@ -1,5 +1,6 @@
 package com.happytrees.fast;
 
+import android.app.ProgressDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -18,6 +19,7 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
     RecyclerView   myRecycler;
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,13 +28,21 @@ public class MainActivity extends AppCompatActivity {
 
         //setting RecyclerView
         myRecycler = (RecyclerView) findViewById(R.id.myRecycler);
-
         myRecycler.setLayoutManager(new LinearLayoutManager(this));//LinearLayoutManager, GridLayoutManager ,StaggeredGridLayoutManagerFor defining how single row of recycler view will look .  LinearLayoutManager shows items in horizontal or vertical scrolling list. Don't confuse with type of layout you use in xml
 
 
 
+        //PROGRESS BAR
+        // Set up progress before call
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Its loading....");
+        progressDialog.setTitle("ProgressDialog bar ");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+
+
         final Endpoint apiService = APIClient.getClient().create(Endpoint.class);
-        Call<MyResponse>call = apiService.getMyResults("Titanic");
+        Call<MyResponse>call = apiService.getMyResults("Alien");
+        progressDialog.show();//SHOW PROGRESS BAR BEFORE CALL
         call.enqueue(new Callback<MyResponse>() {
             @Override
             public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
@@ -47,11 +57,12 @@ public class MainActivity extends AppCompatActivity {
                 myRecycler.setAdapter(myMovieAdapter);
                 myMovieAdapter.notifyDataSetChanged();//refresh
 
+                progressDialog.dismiss();//dismiss progress bar after call was completed
             }
 
             @Override
             public void onFailure(Call<MyResponse> call, Throwable t) {
-
+                progressDialog.dismiss();//dismiss progress bar after call was completed
             }
         });
 
